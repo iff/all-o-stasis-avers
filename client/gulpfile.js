@@ -11,11 +11,7 @@ var gulp       = require('gulp')
 
 
 
-var app = ts.createProject({
-    declarationFiles: false,
-    target: 'ES6',
-    typescript: require('typescript')
-});
+var app = ts.createProject('tsconfig.json');
 
 
 

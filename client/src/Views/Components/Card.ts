@@ -1,6 +1,6 @@
 /// <reference path="../../ext/react.d.ts" />
 
-import * as Avers from '../../lib/avers';
+import * as Avers from 'avers';
 import {App, refresh, navigateTo, navigateToFn} from '../../app';
 import {Boulder} from '../../storage';
 

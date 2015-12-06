@@ -1,7 +1,8 @@
 {
-    "version": "1.5.3",
+    "version": "1.7.3",
     "compilerOptions": {
         "target": "es6",
+        "moduleResolution": "node",
         "declaration": false,
         "noImplicitAny": false,
         "removeComments": true,
@@ -16,6 +17,15 @@
         "!./node_modules/**/*"
     ],
     "files": [
+        "./src/actions.ts",
+        "./src/app.ts",
+        "./src/env/config.d.ts",
+        "./src/env/local.ts",
+        "./src/ext/react-addons.d.ts",
+        "./src/ext/react.d.ts",
+        "./src/main.ts",
+        "./src/storage.ts",
+        "./src/views.ts",
         "./src/Views/Boulder.ts",
         "./src/Views/Components/Card.ts",
         "./src/Views/Components/DropdownInput.ts",
@@ -26,19 +36,9 @@
         "./src/Views/Components/Timestamp.ts",
         "./src/Views/Home.ts",
         "./src/Views/Login.ts",
-        "./src/Views/Signup.ts",
-        "./src/app.ts",
-        "./src/env/config.d.ts",
-        "./src/env/local.ts",
-        "./src/ext/react.d.ts",
-        "./src/lib/avers.ts",
-        "./src/lib/avers/core.ts",
-        "./src/lib/avers/session.ts",
-        "./src/lib/avers/shared.ts",
-        "./src/lib/avers/storage.ts",
-        "./src/lib/computation.ts",
-        "./src/main.ts",
-        "./src/storage.ts",
-        "./src/views.ts"
-    ]
+        "./src/Views/Signup.ts"
+    ],
+    "atom": {
+        "rewriteTsconfig": true
+    }
 }

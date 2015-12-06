@@ -5,7 +5,7 @@ module Signup
 */
 
 
-import * as Avers from '../lib/avers';
+import * as Avers from 'avers';
 import {App, refresh, navigateToFn} from '../app';
 import {site} from './Components/Site';
 

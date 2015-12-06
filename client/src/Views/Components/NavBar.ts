@@ -5,7 +5,7 @@ module NavBar
 */
 
 
-import * as Avers from '../../lib/avers';
+import * as Avers from 'avers';
 import {App, navigateTo, navigateToFn} from '../../app';
 import * as Boulder from '../Boulder';
 
