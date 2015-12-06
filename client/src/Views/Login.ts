@@ -5,7 +5,7 @@ module Login
 */
 
 
-import * as Avers from '../lib/avers';
+import * as Avers from 'avers';
 import {App, refresh, navigateTo} from '../app';
 import * as Site from './Components/Site';
 import * as NavBar from './Components/NavBar';

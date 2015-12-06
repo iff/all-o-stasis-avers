@@ -6,7 +6,7 @@ module Actions
 */
 
 
-import * as Avers from './lib/avers';
+import * as Avers from 'avers';
 import * as Storage from './Storage';
 import {App, navigateTo, refresh} from './app';
 

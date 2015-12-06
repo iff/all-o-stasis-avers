@@ -12,7 +12,7 @@ module App
 */
 
 
-import * as Avers from './lib/avers';
+import * as Avers from 'avers';
 import {Account, Boulder} from './storage';
 
 declare var page;

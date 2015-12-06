@@ -7,7 +7,7 @@ module Storage
 */
 
 
-import * as Avers from './lib/avers';
+import * as Avers from 'avers';
 
 
 export class Account
