@@ -82,7 +82,7 @@ const Chart = ({ bounds, data }: ChartProps) => {
         {data.map(({ sector, count }) => (
           <g key={sector} transform={`translate(${(xScale(sector) || 0) + xScale.bandwidth() / 2} 20)`}>
             <Text>{count}</Text>
-            <Text dy={16}>{prettyPrintSector(sector)}</Text>
+            <Text dy={16}>{prettyPrintSector(sector).substring(0, 2)}</Text>
           </g>
         ))}
       </g>

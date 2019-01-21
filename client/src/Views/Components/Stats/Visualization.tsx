@@ -25,19 +25,19 @@ const matchSetter = (selectedSetters: string[]) =>
     : (bs: BoulderStat) => bs.setters.some(setterId => selectedSetters.indexOf(setterId) !== -1);
 
 export interface VisualizationProps {
-  bssC: Computation<any[]>;
+  events: any[];
   sectors: string[];
   selectedSetters: string[];
 }
 
-export const Visualization = ({ bssC, sectors, selectedSetters }: VisualizationProps) => (
+export const Visualization = ({ events, sectors, selectedSetters }: VisualizationProps) => (
   <Measure bounds>
     {({ measureRef, contentRect }) => (
       <div ref={measureRef} style={{ position: "relative", flex: 1 }}>
         {contentRect.bounds && (
           <div style={{ position: "absolute" }}>
             <VisualizationRenderer
-              bssC={bssC}
+              events={events}
               bounds={contentRect.bounds}
               sectors={sectors}
               selectedSetters={selectedSetters}
@@ -50,13 +50,13 @@ export const Visualization = ({ bssC, sectors, selectedSetters }: VisualizationP
 );
 
 interface VisualizationRendererProps {
-  bssC: Computation<any[]>;
+  events: any[];
   sectors: string[];
   selectedSetters: string[];
   bounds: BoundingRect;
 }
 
-const VisualizationRenderer = ({ bssC, sectors, selectedSetters, bounds }: VisualizationRendererProps) => {
+const VisualizationRenderer = ({ events, sectors, selectedSetters, bounds }: VisualizationRendererProps) => {
   if (!bounds.height) {
     return <div />;
   }
@@ -67,8 +67,6 @@ const VisualizationRenderer = ({ bssC, sectors, selectedSetters, bounds }: Visua
     right: 24,
     bottom: 48
   };
-
-  const events = bssC.get<any[]>([]);
 
   const values = (() => {
     const res = events.reduce(

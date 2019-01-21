@@ -1,7 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
 
-import { App, activeSetters } from "../../../app";
 import { accountPublicProfile } from "../../../../pages/account";
 
 import { text, lightGrey } from "../../../Materials/Colors";
@@ -9,16 +8,18 @@ import { useTypeface, copy14 } from "../../../Materials/Typefaces";
 
 import { Section, SectionLink } from "./Internal";
 
+import { useEnv } from "../../../env";
+
 export interface SetterSelectorProps {
-  app: App;
   selectedSetters: string[];
 
   clear: undefined | (() => void);
   toggle(setterId: string): void;
 }
 
-export const SetterSelector = ({ app, selectedSetters, clear, toggle }: SetterSelectorProps) => {
-  const setters = activeSetters(app)
+export const SetterSelector = ({ selectedSetters, clear, toggle }: SetterSelectorProps) => {
+  const { app } = useEnv();
+  const setters = app.data.adminAccountCollection.ids
     .get<string[]>([])
     .map(accountId => {
       const isSelected = selectedSetters.length === 0 || selectedSetters.indexOf(accountId) !== -1;
