@@ -250,8 +250,12 @@ const Toolbar = styled.div`
 const Grid = styled.div`
   flex: 1;
   display: grid;
-  grid-template: calc(50% - 12px) calc(50% - 12px) / 1fr 1fr;
-  grid-gap: 24px;
+  grid-template: 1fr 1fr;
+  grid-gap: 12px;
+  @media screen and (min-width: 600px) {
+    grid-template: calc(50% - 12px) calc(50% - 12px) / 1fr 1fr;
+    grid-gap: 24px;
+  }
 `;
 
 const GridItem = styled.div`
@@ -260,6 +264,7 @@ const GridItem = styled.div`
   transition: box-shadow 0.16s;
   display: flex;
   flex-direction: column;
+  min-height: 300px;
 `;
 
 const GridItemTitle = styled.div`
