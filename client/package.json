@@ -35,7 +35,7 @@
     "react-motion": "^0.5.2",
     "react-vega": "^4.0.2",
     "react-vega-lite": "^2.0.2",
-    "styled-components": "^4.2.0",
+    "styled-components": "^4.4.1",
     "svg-react-loader": "^0.4.5",
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.15.0",
