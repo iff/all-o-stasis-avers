@@ -16,7 +16,7 @@
     "avers": "^0.18.1-alpha.155",
     "babel-plugin-styled-components": "^1.10.7",
     "computation": "^2.0.2",
-    "d3-array": "^2.0.3",
+    "d3-array": "^2.4.0",
     "d3-axis": "^1.0.12",
     "d3-collection": "^1.0.7",
     "d3-scale": "^2.2.2",
