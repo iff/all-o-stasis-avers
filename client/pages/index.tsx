@@ -80,7 +80,7 @@ export default class extends React.Component<{ app: App }, State> {
 
     return (
       <Site>
-        {(role(app) === "admin" || role(app) === "setter") && <SetterBar app={app} />}
+        {(role(app) === "admin" || role(app) === "setter") && <SetterBar />}
         <Boulders>
           {groups.map(({ date, boulders }) => (
             <React.Fragment key={date.toISOString()}>
