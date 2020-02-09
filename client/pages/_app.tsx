@@ -7,16 +7,6 @@ import shallowEqual from "fbjs/lib/shallowEqual";
 import { Env } from "../src/env";
 
 export default class extends NApp {
-  static async getInitialProps({ Component, ctx }) {
-    let pageProps = {};
-
-    if (Component.getInitialProps) {
-      pageProps = await Component.getInitialProps(ctx);
-    }
-
-    return { pageProps };
-  }
-
   app = ((): App => {
     const aversH = Avers.newHandle({
       apiHost: (config.secure ? "https://" : "http://") + config.apiHost,
@@ -30,7 +20,7 @@ export default class extends NApp {
     return new App(data);
   })();
 
-  state = { isMounted: false, generationNumber: 0 };
+  state = { generationNumber: 0 };
 
   refreshId: undefined | any = undefined;
   generationListener = () => {
@@ -43,7 +33,6 @@ export default class extends NApp {
   };
 
   componentDidMount() {
-    this.setState({ isMounted: true });
     Avers.attachGenerationListener(this.app.data.aversH, this.generationListener);
     Avers.restoreSession(this.app.data.session);
 
