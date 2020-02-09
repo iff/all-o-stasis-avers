@@ -1,13 +1,25 @@
 import React from "react";
-import NApp from "next/app";
 import * as Avers from "avers";
 import { config, Data, App, infoTable } from "../src/app";
 import { parse } from "url";
 import shallowEqual from "fbjs/lib/shallowEqual";
 import { Env } from "../src/env";
+import { useRouter } from "next/router";
 
-export default class extends NApp {
-  app = ((): App => {
+export default ({ Component, pageProps }) => {
+  const router = useRouter();
+  React.useEffect(() => {
+    // If window.location.href contains any additional query params, reflect them into
+    // the router.
+    const { query } = parse(window.location.href, true);
+    const extendedQuery = { ...router.query, ...query };
+    if (!shallowEqual(router.query, extendedQuery)) {
+      const href = { pathname: router.pathname, query: extendedQuery };
+      router.replace(href, router.asPath).catch(console.error);
+    }
+  }, [router]);
+
+  const app = React.useMemo(() => {
     const aversH = Avers.newHandle({
       apiHost: (config.secure ? "https://" : "http://") + config.apiHost,
       fetch: typeof window !== "undefined" ? window.fetch.bind(window) : () => new Promise(() => {}),
@@ -18,53 +30,38 @@ export default class extends NApp {
 
     const data = new Data(aversH);
     return new App(data);
-  })();
+  }, []);
 
-  state = { generationNumber: 0 };
+  const [generationNumber, setGenerationNumber] = React.useState(0);
+  React.useEffect(() => {
+    let refreshId: undefined | number;
 
-  refreshId: undefined | any = undefined;
-  generationListener = () => {
-    if (this.refreshId === undefined) {
-      this.refreshId = requestAnimationFrame(() => {
-        this.refreshId = undefined;
-        this.setState({ generationNumber: this.app.data.aversH.generationNumber });
-      });
-    }
-  };
+    const generationListener = () => {
+      if (refreshId === undefined) {
+        refreshId = requestAnimationFrame(() => {
+          refreshId = undefined;
+          setGenerationNumber(app.data.aversH.generationNumber);
+        });
+      }
+    };
 
-  componentDidMount() {
-    Avers.attachGenerationListener(this.app.data.aversH, this.generationListener);
-    Avers.restoreSession(this.app.data.session);
+    Avers.attachGenerationListener(app.data.aversH, generationListener);
+    Avers.restoreSession(app.data.session);
 
     const windowAny = window as any;
     windowAny.Avers = Avers;
-    windowAny.app = this.app;
+    windowAny.app = app;
 
-    // If window.location.href contains any additional query params, reflect them into
-    // the router.
-    const { router } = this.props;
-    const { query } = parse(window.location.href, true);
-    const extendedQuery = { ...router.query, ...query };
-    if (!shallowEqual(router.query, extendedQuery)) {
-      const href = { pathname: router.pathname, query: extendedQuery };
-      router.replace(href, router.asPath).catch(console.error);
-    }
-  }
+    return () => {
+      if (refreshId !== undefined) {
+        cancelAnimationFrame(refreshId);
+      }
+    };
+  }, [app, setGenerationNumber]);
 
-  componentWillUnmount() {
-    if (this.refreshId !== undefined) {
-      cancelAnimationFrame(this.refreshId);
-      this.refreshId = undefined;
-    }
-  }
-
-  render() {
-    const { Component, pageProps } = this.props;
-
-    return (
-      <Env.Provider value={{ app: new App(this.app.data) }}>
-        <Component generationNumber={this.state.generationNumber} app={this.app} {...pageProps} />
-      </Env.Provider>
-    );
-  }
-}
+  return (
+    <Env.Provider value={{ app: new App(app.data) }}>
+      <Component generationNumber={generationNumber} app={app} {...pageProps} />
+    </Env.Provider>
+  );
+};
