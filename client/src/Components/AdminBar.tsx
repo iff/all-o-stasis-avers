@@ -15,6 +15,9 @@ export const AdminBar = () => (
     <Link href="/admin/boulders">
       <a>Boulders</a>
     </Link>
+    <Link href="/admin/data">
+      <a>Data</a>
+    </Link>
   </Root>
 );
 
