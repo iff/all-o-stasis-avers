@@ -9,7 +9,6 @@ import { Site } from "../src/Views/Components/Site";
 import { SectorSelector } from "../src/Views/Components/Stats/SectorSelector";
 import { SetterSelector } from "../src/Views/Components/Stats/SetterSelector";
 import { Visualization } from "../src/Views/Components/Stats/Visualization";
-// import { Button } from "../Components/Button";
 import { Section } from "../src/Views/Components/Stats/Internal";
 import { GradeDistributionChart } from "../src/Components/GradeDistributionChart";
 import Computation from "computation";
@@ -95,11 +94,6 @@ export default class extends React.Component<StatsPageProps, StatsPageState> {
     return Avers.staticValue(app.data.aversH, boulderStats(app.data.aversH)).fmap(toEvents);
   };
 
-  removeBoulders = (): void => {
-    // const bss = this.bssC().get(undefined);
-    alert("Not implemented yet");
-  };
-
   render() {
     const { app } = this.props;
     const { sectors, selectedSetters } = this.state;
@@ -177,11 +171,6 @@ export default class extends React.Component<StatsPageProps, StatsPageState> {
                 <Section>Boulders</Section>
                 <div>Sectors: {sectors.length === 0 ? "ALL" : sectors.join(", ")}</div>
               </div>
-              {/* <div>
-                <ToolbarButton>
-                  <Button onClick={this.removeBoulders}>remove selected boulders</Button>
-                </ToolbarButton>
-              </div> */}
             </Toolbar>
             <Grid>
               <GridItem>
@@ -244,8 +233,6 @@ const Toolbar = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-
-// const ToolbarButton = styled.div``;
 
 const Grid = styled.div`
   flex: 1;
