@@ -35,7 +35,7 @@ export const sectors = [
   "starship",
   "bigboss",
   "dune",
-  "klagemauer",
+  "plaettliwand",
   "kurswand",
   "hoefli",
   "spektrumone",
@@ -61,7 +61,8 @@ export function prettyPrintSector(sectorName: string): string {
     .replace(/two/i, " 2")
     .replace(/three/i, " 3")
     .replace(/four/i, " 4")
-    .replace(/oe/i, "ö");
+    .replace(/oe/i, "ö")
+    .replace(/ae/i, "ä");
 }
 
 export interface SetterMonthlyStats {
