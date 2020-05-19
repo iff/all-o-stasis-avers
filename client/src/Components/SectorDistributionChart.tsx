@@ -56,6 +56,10 @@ const Chart = ({ bounds, data }: ChartProps) => {
     .domain([0, Math.round(max * 1.2)])
     .range([bounds.height - padding.bottom - padding.top, 0]);
 
+  // FIXME: we still have the events from old sectors.
+  // For now just ignore sectors with 0 count
+  data = data.filter(({sector, count}) => (count > 0));
+
   return (
     <svg width={bounds.width} height={bounds.height} style={{ position: "absolute", display: "block" }}>
       <g transform={`translate(${padding.left},${padding.top})`}>
