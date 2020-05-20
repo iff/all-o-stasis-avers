@@ -3,27 +3,16 @@ import * as React from "react";
 import styled from "styled-components";
 
 import { boulderStats, BoulderStat, gradeCompare } from "../src/storage";
-import { App } from "../src/app";
-
 import { Site } from "../src/Views/Components/Site";
-import { SectorSelector } from "../src/Views/Components/Stats/SectorSelector";
-import { SetterSelector } from "../src/Views/Components/Stats/SetterSelector";
-import { Visualization } from "../src/Views/Components/Stats/Visualization";
-// import { Button } from "../Components/Button";
-import { Section } from "../src/Views/Components/Stats/Internal";
-import { GradeDistributionChart } from "../src/Components/GradeDistributionChart";
-import Computation from "computation";
+
 import { useTypeface, heading20 } from "../src/Materials/Typefaces";
+
 import { SectorDistributionChart } from "../src/Components/SectorDistributionChart";
+import { GradeDistributionChart } from "../src/Components/GradeDistributionChart";
+import { Visualization } from "../src/Views/Components/Stats/Visualization";
+import { StatsFilter } from "../src/Views/Components/Stats/StatsFilter";
 
-interface StatsPageProps {
-  app: App;
-}
-
-interface StatsPageState {
-  sectors: string[];
-  selectedSetters: string[]; // ObjId[]
-}
+import { useEnv } from "../src/env";
 
 type EventType = "set" | "removed";
 interface Event {
@@ -43,41 +32,59 @@ const matchSetter = (setters: string[]) =>
     ? () => true
     : (bs: BoulderStat) => bs.setters.some(setterId => setters.indexOf(setterId) !== -1);
 
-export default class extends React.Component<StatsPageProps, StatsPageState> {
-  state: StatsPageState = {
-    sectors: [],
-    selectedSetters: []
-  };
+export default () => {
+  const [sectors, setSectors] = React.useState<string[]>([]);
+  const [selectedSetters, setSelectedSetters] = React.useState<string[]>([]);
 
-  clearSectors = (): void => {
-    this.setState({ sectors: [] });
-  };
-  toggleSector = (sector: string): void => {
-    if (this.state.sectors.indexOf(sector) === -1) {
-      this.setState({ sectors: [sector].concat(this.state.sectors) });
+  const { app } = useEnv();
+  const { aversH } = app.data;
+
+  const clearSectors = (): void => { setSectors([]); };
+  const clearSetters = (): void => { setSelectedSetters([]); };
+
+  const toggleSector = (sector: string): void => {
+    if (sectors.includes(sector)) {
+      setSectors(sectors.filter(x => x !== sector));
     } else {
-      this.setState({ sectors: this.state.sectors.filter(x => x !== sector) });
+      setSectors([sector, ...sectors]);
     }
   };
 
-  clearSetters = (): void => {
-    this.setState({ selectedSetters: [] });
-  };
-  toggleSetter = (setterId: string): void => {
-    if (this.state.selectedSetters.indexOf(setterId) === -1) {
-      this.setState({ selectedSetters: [setterId].concat(this.state.selectedSetters) });
+  const toggleSetter = (accountId: string): void => {
+    if (selectedSetters.includes(accountId)) {
+      setSelectedSetters(selectedSetters.filter(x => x !== accountId));
     } else {
-      this.setState({ selectedSetters: this.state.selectedSetters.filter(x => x !== setterId) });
+      setSelectedSetters([accountId, ...selectedSetters]);
     }
   };
 
-  bssC = (): Computation<Event[]> => {
-    const { app } = this.props;
+  const history_start = new Date();
+  history_start.setMonth(history_start.getMonth() - 4);
 
-    const toEvents = (bss: BoulderStat[]) =>
-      bss
+  const bss = React.useMemo(() => {
+    return Avers.staticValue(aversH, boulderStats(aversH)).get<BoulderStat[]>([]);
+  }, [aversH, aversH.generationNumber]);
+
+  const events = React.useMemo(() => {
+    return bss
         .map(
           (bs: BoulderStat): Event[] => {
+            // before history_start just track not removed boulders, and boulders that are removed after history_start
+            if (bs.setOn < history_start) {
+              if (bs.removedOn === undefined) {
+                return [{ bs, type: "set", date: bs.setOn, setters: bs.setters, sector: bs.sector, grade: bs.grade }];
+              } else {
+                if (bs.removedOn > history_start) {
+                  return [
+                    { bs, type: "set", date: bs.setOn, setters: bs.setters, sector: bs.sector, grade: bs.grade },
+                    { bs, type: "removed", date: bs.removedOn, setters: bs.setters, sector: bs.sector, grade: bs.grade }
+                  ];
+                } else {
+                  return [];
+                }
+              }
+            }
+
             if (bs.removedOn === undefined) {
               return [{ bs, type: "set", date: bs.setOn, setters: bs.setters, sector: bs.sector, grade: bs.grade }];
             } else {
@@ -89,26 +96,12 @@ export default class extends React.Component<StatsPageProps, StatsPageState> {
           }
         )
         .reduce<Event[]>((a, x) => a.concat(x), [])
-        .sort((a, b) => +a.date - +b.date)
-        .filter(a => a.date.getTime() > 10000);
+        .sort((a, b) => +a.date - +b.date);
+  }, [bss])
 
-    return Avers.staticValue(app.data.aversH, boulderStats(app.data.aversH)).fmap(toEvents);
-  };
-
-  removeBoulders = (): void => {
-    // const bss = this.bssC().get(undefined);
-    alert("Not implemented yet");
-  };
-
-  render() {
-    const { app } = this.props;
-    const { sectors, selectedSetters } = this.state;
-
-    const bssC = this.bssC();
-
-    const gradeDistribution = (() => {
+  function useGradeDistribution() {
+    return React.useMemo(() => {
       const map = new Map<string, number>();
-      const events = bssC.get<Event[]>([]);
       events.forEach(ev => {
         const grade = ev.bs.grade;
         const count = map.get(grade) || 0;
@@ -128,11 +121,12 @@ export default class extends React.Component<StatsPageProps, StatsPageState> {
         return gradeCompare(a.grade, b.grade);
       });
       return ret;
-    })();
+    }, [events, sectors, selectedSetters])
+  }
 
-    const sectorDistribution = (() => {
+  function useSectorDistribution() {
+    return React.useMemo(() => {
       const map = new Map<string, number>();
-      const events = bssC.get<Event[]>([]);
       events.forEach(ev => {
         const sector = ev.bs.sector;
         const count = map.get(sector) || 0;
@@ -150,87 +144,58 @@ export default class extends React.Component<StatsPageProps, StatsPageState> {
       });
       ret.sort();
       return ret;
-    })();
-
-    return (
-      <Site>
-        <Root>
-          <Side>
-            <SideContent>
-              <SectorSelector
-                sectors={sectors}
-                clear={sectors.length === 0 ? undefined : this.clearSectors}
-                toggle={this.toggleSector}
-              />
-
-              <SetterSelector
-                app={app}
-                selectedSetters={selectedSetters}
-                clear={selectedSetters.length === 0 ? undefined : this.clearSetters}
-                toggle={this.toggleSetter}
-              />
-            </SideContent>
-          </Side>
-          <Main>
-            <Toolbar>
-              <div>
-                <Section>Boulders</Section>
-                <div>Sectors: {sectors.length === 0 ? "ALL" : sectors.join(", ")}</div>
-              </div>
-              {/* <div>
-                <ToolbarButton>
-                  <Button onClick={this.removeBoulders}>remove selected boulders</Button>
-                </ToolbarButton>
-              </div> */}
-            </Toolbar>
-            <Grid>
-              <GridItem>
-                <GridItemTitle>History</GridItemTitle>
-                <GridItemContent>
-                  <Visualization bssC={bssC} sectors={sectors} selectedSetters={selectedSetters} />
-                </GridItemContent>
-              </GridItem>
-              <GridItem>
-                <GridItemTitle>Grade Distribution</GridItemTitle>
-                <GridItemContent>
-                  <GradeDistributionChart data={gradeDistribution} />
-                </GridItemContent>
-              </GridItem>
-              <GridItem>
-                <GridItemTitle>Sector Distribution</GridItemTitle>
-                <GridItemContent>
-                  <SectorDistributionChart data={sectorDistribution} />
-                </GridItemContent>
-              </GridItem>
-              <GridItem />
-            </Grid>
-          </Main>
-        </Root>
-      </Site>
-    );
+    }, [events, sectors, selectedSetters])
   }
-}
+
+  return (
+    <Site>
+      <Root>
+        <Main>
+          <Toolbar>
+            <StatsFilter
+              sectors={sectors}
+              selectedSetters={selectedSetters}
+              clearSectors={clearSectors}
+              clearSetters={clearSetters}
+              toggleSector={toggleSector}
+              toggleSetter={toggleSetter}
+            />
+          </Toolbar>
+
+          <Grid>
+            <GridItem>
+              <GridItemTitle>History</GridItemTitle>
+              <GridItemContent>
+                <Visualization events={events} sectors={sectors} selectedSetters={selectedSetters} />
+              </GridItemContent>
+            </GridItem>
+            <GridItem>
+              <GridItemTitle>Grade Distribution</GridItemTitle>
+              <GridItemContent>
+                <GradeDistributionChart data={useGradeDistribution()} />
+              </GridItemContent>
+            </GridItem>
+            <GridItem>
+              <GridItemTitle>Sector Distribution</GridItemTitle>
+              <GridItemContent>
+                <SectorDistributionChart data={useSectorDistribution()} />
+              </GridItemContent>
+            </GridItem>
+            <GridItem />
+          </Grid>
+        </Main>
+      </Root>
+    </Site>
+  );
+};
+
+
+// ----------------------------------------------------------------------------
 
 const Root = styled.div`
   flex: 1;
   padding: 20px 24px;
   display: flex;
-`;
-
-const Side = styled.div`
-  flex: 0 0 300px;
-  position: relative;
-  margin-right: 24px;
-`;
-
-const SideContent = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  flex-direction: column;
 `;
 
 const Main = styled.div`
@@ -240,18 +205,19 @@ const Main = styled.div`
 `;
 
 const Toolbar = styled.div`
-  flex: 0 0 120px;
-  display: flex;
-  justify-content: space-between;
+  padding-bottom: 20px;
 `;
-
-// const ToolbarButton = styled.div``;
 
 const Grid = styled.div`
   flex: 1;
   display: grid;
-  grid-template: calc(50% - 12px) calc(50% - 12px) / 1fr 1fr;
-  grid-gap: 24px;
+  grid-template: 1fr 1fr;
+  grid-gap: 12px;
+
+  @media screen and (min-width: 600px) {
+    grid-template: calc(50% - 12px) calc(50% - 12px) / 1fr 1fr;
+    grid-gap: 24px;
+  }
 `;
 
 const GridItem = styled.div`
@@ -260,6 +226,7 @@ const GridItem = styled.div`
   transition: box-shadow 0.16s;
   display: flex;
   flex-direction: column;
+  min-height: 300px;
 `;
 
 const GridItemTitle = styled.div`

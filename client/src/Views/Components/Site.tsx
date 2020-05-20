@@ -21,7 +21,7 @@ export const Site = ({ children }: SiteProps) => {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }} onClick={onClick}>
-      <Header app={app} />
+      <Header />
       {role(app) === "admin" && <AdminBar />}
       {children}
       <TransientNotification />
