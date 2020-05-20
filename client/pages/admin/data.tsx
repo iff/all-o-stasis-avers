@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { CSVLink } from "react-csv";
 
 import { App } from "../../src/app";
+import { useEnv } from "../../src/env";
 
 import { Site } from "../../src/Views/Components/Site";
 
@@ -60,7 +61,7 @@ function get_stats(app: App): any {
 
 }
 
-export default ({ app }: { app: App }) => (
+export default () => (
   <Site>
     <Root>
       <p>Data preparation takes a while.. be patient before clicking download :)</p>
@@ -72,7 +73,7 @@ export default ({ app }: { app: App }) => (
           </tr>
         </thead>
         <tbody>
-            {get_stats(app).map(({year, rows}) => (
+            {get_stats(useEnv().app).map(({year, rows}) => (
               <tr>
                 <td>{year}</td>
                 <td><CSVLink data={rows}>download</CSVLink></td>
