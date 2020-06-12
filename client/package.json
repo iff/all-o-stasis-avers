@@ -40,7 +40,7 @@
     "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.7.5",
     "vega": "^4.2.0",
-    "vega-lite": "^2.6.0"
+    "vega-lite": "^2.7.0"
   },
   "scripts": {
     "lint": "tslint src/**/*.ts src/**/*.tsx",
