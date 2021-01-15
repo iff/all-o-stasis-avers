@@ -32,7 +32,7 @@
     "react-dom": "^16.13.1",
     "react-measure": "^2.5.2",
     "react-motion": "^0.5.2",
-    "react-vega": "^4.0.2",
+    "react-vega": "^7.4.2",
     "react-vega-lite": "^2.0.2",
     "styled-components": "^5.2.1",
     "svg-react-loader": "^0.4.5",
